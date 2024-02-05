@@ -4,13 +4,14 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var mongoose = require("mongoose");
+
 const { db } = require("./config/database");
+var auth = require("./middleware/auth");
 
 var indexRouter = require("./routes/index");
-var usersRouter = require("./routes/users");
-var todoRouter = require("./routes/todo");
 var movieRouter = require("./routes/movie");
 var reviewRouter = require("./routes/review");
+var userRouter = require("./routes/users");
 
 var app = express();
 
@@ -30,11 +31,10 @@ mongoose
   .catch((err) => console.err(err));
 
 app.use("/", indexRouter);
-app.use("/users", usersRouter);
-app.use("/todos", todoRouter);
 
-app.use("/api/movies", movieRouter);
-app.use("/api/reviews", reviewRouter);
+app.use("/api/movies", auth.verifyUserToken, movieRouter);
+app.use("/api/reviews", auth.verifyUserToken, reviewRouter);
+app.use("/api/users", userRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
